@@ -2,6 +2,7 @@ module Main (main) where
 
 import Data.ByteString.Lazy qualified as BSL
 import Data.Text as T
+import Debug.Trace
 import Debug.Trace (traceShowId)
 import Nock
 import Nock.Jam
@@ -30,8 +31,15 @@ specs = describe "nock" $ do
           let atom = fromInteger (a * b * c * 11)
            in rub (mat atom) === atom
     )
+  describe "cue (jam noun) = noun" $ do
+    testJam "[77 [2 [1 42] [1 1 153 218]]]"
 
 tarTest :: Text -> Text -> Spec
 tarTest source target =
   it (T.unpack ("*" <> source <> " = " <> target)) $
     tar (decode source) == decode target
+
+testJam :: Text -> Spec
+testJam source =
+  it ("cue (jam " ++ T.unpack source ++ ") = source") $
+    cue (jam (decode source)) == decode source

@@ -1,4 +1,4 @@
-module Nock.Jam (mat, rub) where
+module Nock.Jam (jam, cue, mat, rub) where
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State
@@ -28,13 +28,41 @@ parseBits :: Int -> BitParser [Bool]
 parseBits 0 = pure []
 parseBits n = do
   b <- parseBit
-  (b :) <$> parseBits (n + 1)
+  (b :) <$> parseBits (n - 1)
 
 getOffset :: BitParser Int
 getOffset = fst <$> get
 
--- cue' :: BitParser Noun
--- cue' = do
+cue :: ByteString -> Noun
+cue = runGet (runBitGet . withBitOrder LL . flip evalStateT (0, M.empty) $ cue')
+
+cue' :: BitParser Noun
+cue' = do
+  offset <- getOffset
+  isNotAtom <- parseBit
+  case isNotAtom of
+    False -> do
+      a' <- rub'
+      let a = atom a'
+      (offset, m) <- get
+      put (offset, M.insert offset a m)
+      pure a
+    True -> do
+      isNotRef <- parseBit
+      case isNotRef of
+        False -> do
+          x <- cue'
+          y <- cue'
+          let c = cell x y
+          (offset, m) <- get
+          put (offset, M.insert offset c m)
+          pure c
+        True -> do
+          ref <- rub'
+          (_, m) <- get
+          case M.lookup (fromIntegral ref) m of
+            Nothing -> undefined
+            Just a -> pure a
 
 jam :: Noun -> ByteString
 jam n = runPut . runBitPut . withBitOrder LL $ jam' n

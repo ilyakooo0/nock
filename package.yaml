@@ -12,6 +12,7 @@ dependencies:
   - QuickCheck
   - transformers
   - containers
+  - generic-arbitrary
 library:
   source-dirs: src
 

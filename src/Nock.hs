@@ -5,6 +5,7 @@ module Nock (tar, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 import Data.Hashable
 import GHC.Generics (Generic)
 import Numeric.Natural
+import Test.QuickCheck.Arbitrary.Generic
 
 data Annotation = Annotation
   { hash :: Int
