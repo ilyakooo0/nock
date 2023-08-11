@@ -1,0 +1,70 @@
+name: nock
+dependencies:
+  - base
+  - digest
+  - cryptohash-sha256
+  - hashable
+  - megaparsec
+  - text
+  - binary-bits
+  - bytestring
+  - binary
+  - QuickCheck
+  - transformers
+  - containers
+library:
+  source-dirs: src
+
+executables:
+  nock:
+    main: Main.hs
+    source-dirs: exe
+
+ghc-options: > 
+  -Weverything
+  -Wno-unsafe
+  -Wno-missing-safe-haskell-mode
+  -Wno-missing-import-lists
+  -Wno-missing-kind-signatures
+  -Wno-all-missed-specialisations
+  -Wno-missed-specialisations
+  -Wno-partial-type-signatures
+  -threaded
+
+language: GHC2021
+
+default-extensions:
+- DefaultSignatures
+- DataKinds
+- MultiParamTypeClasses
+- OverloadedRecordDot
+- DerivingStrategies
+- DerivingVia
+- DeriveAnyClass
+- DuplicateRecordFields
+- OverloadedStrings
+- ApplicativeDo
+- LambdaCase
+- UndecidableInstances 
+- TypeFamilies
+- FunctionalDependencies
+- ScopedTypeVariables
+- QuantifiedConstraints
+- OverloadedLabels
+- PartialTypeSignatures 
+- ViewPatterns
+- NoFieldSelectors
+- NoFieldSelectors
+- AllowAmbiguousTypes 
+- ImpredicativeTypes
+
+tests:
+  spec:
+    main: Main.hs
+    source-dirs:
+      - tests
+    dependencies:
+      - tasty
+      - nock
+      - tasty-hspec
+      - hspec
