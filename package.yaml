@@ -13,6 +13,7 @@ dependencies:
   - transformers
   - containers
   - generic-arbitrary
+  - tasty-golden
 library:
   source-dirs: src
 

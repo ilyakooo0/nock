@@ -2,6 +2,7 @@
 
 module Nock.Parser (decode) where
 
+import Control.Applicative
 import Data.Text as T
 import Data.Void (Void)
 import Nock
@@ -10,7 +11,7 @@ import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
 decode :: Text -> Noun
-decode txt = case Text.Megaparsec.parse parser "" . T.filter (\c -> c /= '.') $ txt of
+decode txt = case Text.Megaparsec.parse (space *> parser <* space) "" . T.filter (\c -> c /= '.') $ txt of
   Right non -> non
   Left err -> error $ errorBundlePretty err
 
@@ -26,12 +27,13 @@ cellParser :: Parser Noun
 cellParser = do
   char '['
   space
-  h <- parser
-  space1
-  t <- sepBy parser space1
-  space
+  nons <- sugarCell
   char ']'
-  pure $ toCell (h : t)
+  pure $ toCell nons
+
+sugarCell :: Parser [Noun]
+sugarCell = do
+  try (liftA2 (:) (try (parser <* space)) sugarCell) <|> pure []
 
 toCell :: [Noun] -> Noun
 toCell = \case

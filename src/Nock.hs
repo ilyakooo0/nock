@@ -1,8 +1,9 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Nock (tar, cell, atom, Annotation (..), Noun, RawNoun (..)) where
+module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 
 import Data.Hashable
+import Debug.Trace (trace, traceShowId)
 import GHC.Generics (Generic)
 import Numeric.Natural
 import Test.QuickCheck.Arbitrary.Generic
@@ -88,7 +89,7 @@ hax ~(Cell ~(Atom n _) ~(Cell a b _) _) =
    in case n of
         1 -> a
         _ | m == 0 -> hax (cell (atom d) (cell (cell a (fas (cell (atom $ n + 1) b))) b))
-        _ -> hax (cell (atom d) (cell (cell (fas (cell (atom $ n + n) b)) a) b))
+        _ -> hax (cell (atom d) (cell (cell (fas (cell (atom $ n - 1) b)) a) b))
 
 tar :: Noun -> Noun
 tar ~(Cell a ~(Cell b c _) _) = case b of
@@ -109,7 +110,7 @@ tar ~(Cell a ~(Cell b c _) _) = case b of
           ~(Cell l k _) -> tar $ cell a $ tar $ cell (cell l k) $ cell sig $ tar $ cell (cell (atom 2) (atom 3)) $ cell sig $ tar $ cell a (cell (atom 4) (cell (atom 4) x))
         10 -> case x of
           ~(Cell l k _) -> hax $ cell l $ cell (tar (cell a k)) $ tar $ cell a y
-        11 -> case c of
-          Cell l k _ -> tar $ cell (cell (tar $ cell a l) (tar $ cell a k)) $ cell sig (atom 3)
-          Atom l _ -> tar $ cell a y
-        _ -> undefined
+        11 -> case x of
+          Cell l k _ -> tar $ cell (cell (tar $ cell a k) (tar $ cell a y)) $ cell sig (atom 3)
+          Atom _ _ -> tar $ cell a y
+        u -> error $ show u
