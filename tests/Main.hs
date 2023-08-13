@@ -32,7 +32,7 @@ main = do
   defaultMain $
     testGroup
       "nock"
-      [ -- spec,
+      [ -- spec
         goldenTest "add",
         goldenTest "dec"
         -- goldenVsString "add" "golden/add.nock" "golden/add.result.nock" $
@@ -50,7 +50,7 @@ goldenTest name = do
       readProcessStdout $
         proc "/run/current-system/sw/bin/urbit" ["eval"]
           & setStdin (byteStringInput hoon)
-    let result = TL.encodeUtf8 $ Nock.Printer.pretty $ tar $ Nock.Parser.decode $ T.decodeUtf8 $ BS.toStrict output
+    let result = TL.encodeUtf8 $ Nock.Printer.pretty $ tar $ Nock.Parser.decode $ T.decodeUtf8 $ BS.toStrict ("[0 " <> output <> "]")
     print result
     pure result
 
@@ -58,6 +58,7 @@ goldenTest name = do
 
 specs :: Spec
 specs = describe "nock" $ do
+  tarTest "[77 [2 [1 42] [1 1 153 218]]]" "[153 218]"
   tarTest "[42 8 [1 0] 8 [1 6 [5 [0 7] 4 0 6] [0 6] 9 2 [0 2] [4 0 6] 0 7] 9 2 0 1]" "41"
   tarTest "[4 9 2.398 0 2.047]" "3"
   tarTest "[2 [1 1 3] 9 36 0 2.047]" "4"

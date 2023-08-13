@@ -5,6 +5,7 @@ module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) whe
 import Data.Hashable
 import Debug.Trace (trace, traceShowId)
 import GHC.Generics (Generic)
+import GHC.Stack
 import Numeric.Natural
 import Test.QuickCheck.Arbitrary.Generic
 
@@ -66,10 +67,11 @@ tis ~(Cell lhs rhs _) = if hashEq lhs rhs then sig else one
 
 fas :: Noun -> Noun
 fas ~(Cell ~(Atom lhs _) rhs _) =
-  case traceShowId lhs of
+  case lhs of
     1 -> rhs
     2 -> case rhs of
-      ~(Cell lhs' _ _) -> lhs'
+      (Cell lhs' _ _) -> lhs'
+      _ -> undefined
     3 -> case rhs of
       ~(Cell _ rhs' _) -> rhs'
     n
@@ -81,12 +83,12 @@ fas ~(Cell ~(Atom lhs _) rhs _) =
     _ -> undefined
 
 hax :: Noun -> Noun
-hax ~(Cell ~(Atom n _) ~(Cell a b _) _) =
-  let (d, m) = divMod n 2
+hax ~(Cell ~(Atom n _) ~(Cell b c _) _) =
+  let (a, m) = divMod n 2
    in case n of
-        1 -> a
-        _ | m == 0 -> hax (cell (atom d) (cell (cell a (fas (cell (atom $ n + 1) b))) b))
-        _ -> hax (cell (atom d) (cell (cell (fas (cell (atom $ n - 1) b)) a) b))
+        1 -> b
+        _ | m == 0 -> hax (cell (atom a) (cell (cell b (fas (cell (atom $ a + a + 1) c))) c))
+        _ -> hax (cell (atom a) (cell (cell (fas (cell (atom $ a + a) c)) b) c))
 
 tar :: Noun -> Noun
 tar ~(Cell a ~(Cell b c _) _) = case b of
@@ -104,10 +106,10 @@ tar ~(Cell a ~(Cell b c _) _) = case b of
         8 -> tar $ cell (cell (tar $ cell a x) a) y
         9 -> tar $ cell (tar $ cell a y) $ cell (atom 2) (cell (cell sig one) (cell sig x))
         6 -> case y of
-          ~(Cell l k _) -> tar $ cell a $ tar $ cell (cell l k) $ cell sig $ tar $ cell (cell (atom 2) (atom 3)) $ cell sig $ tar $ cell a (cell (atom 4) (cell (atom 4) x))
+          ~(Cell c' d' _) -> tar $ cell a $ tar $ cell (cell c' d') $ cell sig $ tar $ cell (cell (atom 2) (atom 3)) $ cell sig $ tar $ cell a (cell (atom 4) (cell (atom 4) x))
         10 -> case x of
-          ~(Cell l k _) -> hax $ cell l $ cell (tar (cell a k)) $ tar $ cell a y
+          ~(Cell b' c' _) -> hax $ cell b' $ cell (tar (cell a c')) $ tar $ cell a y
         11 -> case x of
-          Cell _ k _ -> tar $ cell (cell (tar $ cell a k) (tar $ cell a y)) $ cell sig (atom 3)
+          Cell _ c' _ -> tar $ cell (cell (tar $ cell a c') (tar $ cell a y)) $ cell sig (atom 3)
           Atom _ _ -> tar $ cell a y
         u -> error $ show u
