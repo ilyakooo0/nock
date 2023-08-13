@@ -13,9 +13,6 @@ data Annotation = Annotation
   }
   deriving stock (Show)
 
-zero :: Natural
-zero = 0
-
 atom :: Natural -> Noun
 atom nat = Atom nat Annotation {hash = hash nat}
 
@@ -69,7 +66,7 @@ tis ~(Cell lhs rhs _) = if hashEq lhs rhs then sig else one
 
 fas :: Noun -> Noun
 fas ~(Cell ~(Atom lhs _) rhs _) =
-  case lhs of
+  case traceShowId lhs of
     1 -> rhs
     2 -> case rhs of
       ~(Cell lhs' _ _) -> lhs'
@@ -111,6 +108,6 @@ tar ~(Cell a ~(Cell b c _) _) = case b of
         10 -> case x of
           ~(Cell l k _) -> hax $ cell l $ cell (tar (cell a k)) $ tar $ cell a y
         11 -> case x of
-          Cell l k _ -> tar $ cell (cell (tar $ cell a k) (tar $ cell a y)) $ cell sig (atom 3)
+          Cell _ k _ -> tar $ cell (cell (tar $ cell a k) (tar $ cell a y)) $ cell sig (atom 3)
           Atom _ _ -> tar $ cell a y
         u -> error $ show u

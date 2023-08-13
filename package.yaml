@@ -14,6 +14,7 @@ dependencies:
   - containers
   - generic-arbitrary
   - tasty-golden
+  - typed-process
 library:
   source-dirs: src
 
