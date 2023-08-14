@@ -31,6 +31,24 @@ sig = atom 0
 one :: Noun
 one = atom 1
 
+two :: Noun
+two = atom 2
+
+three :: Noun
+three = atom 3
+
+four :: Noun
+four = atom 4
+
+twoThree :: Noun
+twoThree = cell two three
+
+sigOne :: Noun
+sigOne = cell sig one
+
+sigThree :: Noun
+sigThree = cell sig three
+
 annotation :: RawNoun ann -> ann
 annotation (Atom _ ann) = ann
 annotation (Cell _ _ ann) = ann
@@ -90,25 +108,28 @@ hax ~(Cell ~(Atom n _) ~(Cell b c _) _) =
         _ -> hax (cell (atom a) (cell (cell (fas (cell (atom $ a + a) c)) b) c))
 
 tar :: Noun -> Noun
-tar ~(Cell a ~(Cell b c _) _) = case b of
-  Cell x y _ -> cell (tar (cell a (cell x y))) (tar (cell a c))
+tar ~(Cell subject x _) = tar' x subject
+
+tar' :: Noun -> Noun -> Noun
+tar' ~(Cell b c _) subject = case b of
+  Cell x y _ -> cell (tar' (cell x y) subject) (tar' c subject)
   Atom n _ -> case n of
-    0 -> fas $ cell c a
+    0 -> fas $ cell c subject
     1 -> c
-    3 -> wut $ tar $ cell a c
-    4 -> lus $ tar $ cell a c
+    3 -> wut $ tar' c subject
+    4 -> lus $ tar' c subject
     _ -> case c of
       ~(Cell x y _) -> case n of
-        2 -> tar $ cell (tar $ cell a x) (tar $ cell a y)
-        5 -> tis $ cell (tar $ cell a x) (tar $ cell a y)
-        7 -> tar $ cell (tar $ cell a x) y
-        8 -> tar $ cell (cell (tar $ cell a x) a) y
-        9 -> tar $ cell (tar $ cell a y) $ cell (atom 2) (cell (cell sig one) (cell sig x))
+        2 -> tar' (tar' y subject) (tar' x subject)
+        5 -> tis $ cell (tar' y subject) (tar' x subject)
+        7 -> tar' y (tar' x subject)
+        8 -> tar' y (cell (tar' x subject) subject)
+        9 -> tar' (cell two (cell sigOne (cell sig x))) (tar' y subject)
         6 -> case y of
-          ~(Cell c' d' _) -> tar $ cell a $ tar $ cell (cell c' d') $ cell sig $ tar $ cell (cell (atom 2) (atom 3)) $ cell sig $ tar $ cell a (cell (atom 4) (cell (atom 4) x))
+          ~(Cell c' d' _) -> tar' (tar' (cell sig $ tar' (cell sig $ tar' (cell four (cell four x)) subject) twoThree) (cell c' d')) subject
         10 -> case x of
-          ~(Cell b' c' _) -> hax $ cell b' $ cell (tar (cell a c')) $ tar $ cell a y
+          ~(Cell b' c' _) -> hax $ cell b' $ cell (tar' c' subject) $ tar' y subject
         11 -> case x of
-          Cell _ c' _ -> tar $ cell (cell (tar $ cell a c') (tar $ cell a y)) $ cell sig (atom 3)
-          Atom _ _ -> tar $ cell a y
+          Cell _ c' _ -> tar' sigThree (cell (tar' c' subject) (tar' y subject))
+          Atom _ _ -> tar' y subject
         u -> error $ show u
