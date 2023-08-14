@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Nock.Parser (decode) where
+module Nock.Parser (noun) where
 
 import Control.Applicative
 import Data.Text as T
@@ -10,8 +10,8 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
-decode :: Text -> Noun
-decode txt = case Text.Megaparsec.parse (space *> parser <* space) "" . T.filter (\c -> c /= '.') $ txt of
+noun :: Text -> Noun
+noun txt = case Text.Megaparsec.parse (space *> parser <* space) "" . T.filter (\c -> c /= '.') $ txt of
   Right non -> non
   Left err -> error $ errorBundlePretty err
 

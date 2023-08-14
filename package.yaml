@@ -15,6 +15,8 @@ dependencies:
   - generic-arbitrary
   - tasty-golden
   - typed-process
+  - gauge
+  - filepath
 library:
   source-dirs: src
 
@@ -23,9 +25,14 @@ executables:
     main: Main.hs
     source-dirs: exe
 
+benchmarks:
+  nock-bench:
+    main: bench/Main.hs
+
 ghc-options: > 
   -Weverything
   -Wno-unsafe
+  -Wno-implicit-prelude
   -Wno-missing-safe-haskell-mode
   -Wno-missing-import-lists
   -Wno-missing-kind-signatures
