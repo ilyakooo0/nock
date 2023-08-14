@@ -3,19 +3,19 @@
 module Nock.Parser (noun) where
 
 import Control.Applicative
-import Data.Text as T
+import Data.Text.Lazy as TL
 import Data.Void (Void)
 import Nock
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)
 
-noun :: Text -> Noun
-noun txt = case Text.Megaparsec.parse (space *> parser <* space) "" . T.filter (\c -> c /= '.') $ txt of
+noun :: TL.Text -> Noun
+noun txt = case Text.Megaparsec.parse (space *> parser <* space) "" . TL.filter (\c -> c /= '.') $ txt of
   Right non -> non
   Left err -> error $ errorBundlePretty err
 
-type Parser = Parsec Void Text
+type Parser = Parsec Void TL.Text
 
 parser :: Parser Noun
 parser = try atomParser <|> cellParser

@@ -11,7 +11,6 @@ import Data.Bits
 import Data.ByteString.Lazy (ByteString)
 import Data.Map (Map)
 import Data.Map qualified as M
-import Data.Word
 import Nock
 import Numeric.Natural
 

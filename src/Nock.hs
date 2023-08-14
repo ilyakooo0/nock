@@ -2,17 +2,16 @@
 
 module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 
+import Control.DeepSeq (NFData)
 import Data.Hashable
-import Debug.Trace (trace, traceShowId)
 import GHC.Generics (Generic)
-import GHC.Stack
 import Numeric.Natural
-import Test.QuickCheck.Arbitrary.Generic
 
 data Annotation = Annotation
   { hash :: Int
   }
-  deriving stock (Show)
+  deriving stock (Show, Generic)
+  deriving anyclass (NFData)
 
 atom :: Natural -> Noun
 atom nat = Atom nat Annotation {hash = hash nat}
@@ -40,6 +39,7 @@ data RawNoun ann
   = Atom !Natural ann
   | Cell (RawNoun ann) (RawNoun ann) ann
   deriving stock (Generic, Show)
+  deriving anyclass (NFData)
 
 instance Eq (RawNoun ann) where
   (Atom lhs _) == (Atom rhs _) = lhs == rhs
@@ -70,8 +70,7 @@ fas ~(Cell ~(Atom lhs _) rhs _) =
   case lhs of
     1 -> rhs
     2 -> case rhs of
-      (Cell lhs' _ _) -> lhs'
-      _ -> undefined
+      ~(Cell lhs' _ _) -> lhs'
     3 -> case rhs of
       ~(Cell _ rhs' _) -> rhs'
     n

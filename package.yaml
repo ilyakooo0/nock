@@ -17,6 +17,7 @@ dependencies:
   - typed-process
   - gauge
   - filepath
+  - deepseq
 library:
   source-dirs: src
 
@@ -29,6 +30,9 @@ benchmarks:
   nock-bench:
     main: bench/Main.hs
 
+    dependencies:
+      - tasty
+      - nock
 ghc-options: > 
   -Weverything
   -Wno-unsafe
