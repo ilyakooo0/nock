@@ -46,9 +46,6 @@ twoThree = cell two three
 sigOne :: Noun
 sigOne = cell sig one
 
-sigThree :: Noun
-sigThree = cell sig three
-
 annotation :: RawNoun ann -> ann
 annotation (Atom _ ann) = ann
 annotation (Cell _ _ ann) = ann
@@ -99,13 +96,13 @@ fas lhs rhs =
                 else fas 3 (fas d rhs)
     _ -> undefined
 
-hax :: Natural -> Noun -> Noun
-hax n ~(Cell b c _) =
+hax :: Natural -> Noun -> Noun -> Noun
+hax n b c =
   let (a, m) = divMod n 2
    in case n of
         1 -> b
-        _ | m == 0 -> hax a (cell (cell b (fas (a + a + 1) c)) c)
-        _ -> hax a (cell (cell (fas (a + a) c) b) c)
+        _ | m == 0 -> hax a (cell b (fas (a + a + 1) c)) c
+        _ -> hax a (cell (fas (a + a) c) b) c
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
@@ -136,7 +133,7 @@ tar' b c subject = case b of
         6 -> case tar' sig (tar' sig (tar' four (cell four x) subject) twoThree) (cell h j) of
           ~(Cell u v _) -> tar' u v subject
         10 -> case x of
-          ~(Cell ~(Atom b' _) ~(Cell u v _) _) -> hax b' $ cell (tar' u v subject) $ tar' h j subject
+          ~(Cell ~(Atom b' _) ~(Cell u v _) _) -> hax b' (tar' u v subject) (tar' h j subject)
         11 -> case x of
           Cell _ ~(Cell u v _) _ -> tar' sig three (cell (tar' u v subject) (tar' h j subject))
           Atom _ _ -> tar' h j subject
