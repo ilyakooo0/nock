@@ -99,13 +99,13 @@ fas lhs rhs =
                 else fas 3 (fas d rhs)
     _ -> undefined
 
-hax :: Noun -> Noun
-hax ~(Cell ~(Atom n _) ~(Cell b c _) _) =
+hax :: Natural -> Noun -> Noun
+hax n ~(Cell b c _) =
   let (a, m) = divMod n 2
    in case n of
         1 -> b
-        _ | m == 0 -> hax (cell (atom a) (cell (cell b (fas (a + a + 1) c)) c))
-        _ -> hax (cell (atom a) (cell (cell (fas (a + a) c) b) c))
+        _ | m == 0 -> hax a (cell (cell b (fas (a + a + 1) c)) c)
+        _ -> hax a (cell (cell (fas (a + a) c) b) c)
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
@@ -136,7 +136,7 @@ tar' b c subject = case b of
         6 -> case tar' sig (tar' sig (tar' four (cell four x) subject) twoThree) (cell h j) of
           ~(Cell u v _) -> tar' u v subject
         10 -> case x of
-          ~(Cell b' ~(Cell u v _) _) -> hax $ cell b' $ cell (tar' u v subject) $ tar' h j subject
+          ~(Cell ~(Atom b' _) ~(Cell u v _) _) -> hax b' $ cell (tar' u v subject) $ tar' h j subject
         11 -> case x of
           Cell _ ~(Cell u v _) _ -> tar' sig three (cell (tar' u v subject) (tar' h j subject))
           Atom _ _ -> tar' h j subject
