@@ -2,16 +2,11 @@
 => 
 |%
 ++  dec
-~/  %dec
-::    unsigned decrement by one.
 |=  a=@
-~_  leaf+"decrement-underflow"
-?<  =(0 a)
-=+  b=0
-::  decremented integer
+=/  b  0
 |-  ^-  @
-?:  =(a +(b))  b
-$(b +(b))
+?.  =(a +(b))  $(b +(b))  b
+
 --
 
 %-  dec  1.000.000
