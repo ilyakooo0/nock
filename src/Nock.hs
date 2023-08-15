@@ -83,8 +83,8 @@ lus ~(Atom nat _) = atom (nat + 1)
 tis :: Noun -> Noun -> Noun
 tis lhs rhs = if hashEq lhs rhs then sig else one
 
-fas :: Noun -> Noun -> Noun
-fas ~(Atom lhs _) rhs =
+fas :: Natural -> Noun -> Noun
+fas lhs rhs =
   case lhs of
     1 -> rhs
     2 -> case rhs of
@@ -95,8 +95,8 @@ fas ~(Atom lhs _) rhs =
       | n > 0 ->
           let (d, m) = divMod n 2
            in if m == 0
-                then fas (atom 2) (fas (atom d) rhs)
-                else fas (atom 3) (fas (atom d) rhs)
+                then fas 2 (fas d rhs)
+                else fas 3 (fas d rhs)
     _ -> undefined
 
 hax :: Noun -> Noun
@@ -104,8 +104,8 @@ hax ~(Cell ~(Atom n _) ~(Cell b c _) _) =
   let (a, m) = divMod n 2
    in case n of
         1 -> b
-        _ | m == 0 -> hax (cell (atom a) (cell (cell b (fas (atom $ a + a + 1) c)) c))
-        _ -> hax (cell (atom a) (cell (cell (fas (atom $ a + a) c) b) c))
+        _ | m == 0 -> hax (cell (atom a) (cell (cell b (fas (a + a + 1) c)) c))
+        _ -> hax (cell (atom a) (cell (cell (fas (a + a) c) b) c))
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
@@ -115,7 +115,8 @@ tar' b c subject = case b of
   Cell x y _ -> case c of
     ~(Cell l k _) -> cell (tar' x y subject) (tar' l k subject)
   Atom n _ -> case n of
-    0 -> fas c subject
+    0 -> case c of
+      ~(Atom nat _) -> fas nat subject
     1 -> c
     3 -> case c of
       ~(Cell l k _) -> wut $ tar' l k subject
