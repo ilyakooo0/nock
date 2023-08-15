@@ -53,6 +53,8 @@ extra-deps:
 #   commit: 8aa66ff52166ff283b66c7c322108fcb4aa55192
 - git: https://github.com/ilyakooo0/binary-bits
   commit: f58ae476ff50dfc277f8dd603142b7ce864b8e03
+- git: https://github.com/jlwoodwa/MemoTrie
+  commit: 2c8c1a5da4cde71c04ca431371ab4b47c48a06b1
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

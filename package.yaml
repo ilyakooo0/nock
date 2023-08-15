@@ -18,6 +18,7 @@ dependencies:
   - gauge
   - filepath
   - deepseq
+  - MemoTrie
 library:
   source-dirs: src
 

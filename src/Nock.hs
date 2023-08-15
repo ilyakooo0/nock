@@ -4,7 +4,10 @@ module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) whe
 
 import Control.DeepSeq (NFData)
 import Data.Hashable
+import Data.MemoTrie (memo)
+import Debug.Trace (traceShowId)
 import GHC.Generics (Generic)
+import GHC.Word (Word64)
 import Numeric.Natural
 
 data Annotation = Annotation
@@ -80,29 +83,34 @@ lus ~(Atom nat _) = atom (nat + 1)
 tis :: Noun -> Noun -> Noun
 tis lhs rhs = if hashEq lhs rhs then sig else one
 
-fas :: Natural -> Noun -> Noun
-fas lhs rhs =
-  case lhs of
-    1 -> rhs
-    2 -> case rhs of
-      ~(Cell lhs' _ _) -> lhs'
-    3 -> case rhs of
-      ~(Cell _ rhs' _) -> rhs'
-    n
-      | n > 0 ->
-          let (d, m) = divMod n 2
-           in if m == 0
-                then fas 2 (fas d rhs)
-                else fas 3 (fas d rhs)
-    _ -> undefined
+fas' :: Word64 -> Noun -> Noun
+fas' n = case (traceShowId n) of
+  1 -> id
+  2 -> \ ~(Cell x _ _) -> x
+  3 -> \ ~(Cell _ x _) -> x
+  _ ->
+    let (d, m) = divMod n 2
+        next = fas d
+     in if m == 0
+          then \x ->
+            ( case next x of
+                ~(Cell y _ _) -> y
+            )
+          else \x ->
+            ( case next x of
+                ~(Cell _ y _) -> y
+            )
+
+fas :: Word64 -> Noun -> Noun
+fas = memo fas'
 
 hax :: Natural -> Noun -> Noun -> Noun
 hax n b c =
   let (a, m) = divMod n 2
    in case n of
         1 -> b
-        _ | m == 0 -> hax a (cell b (fas (a + a + 1) c)) c
-        _ -> hax a (cell (fas (a + a) c) b) c
+        _ | m == 0 -> hax a (cell b (fas (fromIntegral $ a + a + 1) c)) c
+        _ -> hax a (cell (fas (fromIntegral $ a + a) c) b) c
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
@@ -113,7 +121,7 @@ tar' b c subject = case b of
     ~(Cell l k _) -> cell (tar' x y subject) (tar' l k subject)
   Atom n _ -> case n of
     0 -> case c of
-      ~(Atom nat _) -> fas nat subject
+      ~(Atom nat _) -> fas (fromIntegral nat) subject
     1 -> c
     3 -> case c of
       ~(Cell l k _) -> wut $ tar' l k subject

@@ -15,6 +15,17 @@ packages:
   original:
     commit: f58ae476ff50dfc277f8dd603142b7ce864b8e03
     git: https://github.com/ilyakooo0/binary-bits
+- completed:
+    commit: 2c8c1a5da4cde71c04ca431371ab4b47c48a06b1
+    git: https://github.com/jlwoodwa/MemoTrie
+    name: MemoTrie
+    pantry-tree:
+      sha256: 1820c56b5265d010f46283da208006cf2a8520690b6948d4e9a54953c8e607e6
+      size: 517
+    version: 0.6.10
+  original:
+    commit: 2c8c1a5da4cde71c04ca431371ab4b47c48a06b1
+    git: https://github.com/jlwoodwa/MemoTrie
 snapshots:
 - completed:
     sha256: 2e7d4a730d8eb5373b2d383fac84efcf7c81e3b7a5fce71b4c2e19a1768f25a6
