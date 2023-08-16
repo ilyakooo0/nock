@@ -44,6 +44,8 @@ ghc-options: >
   -Wno-missed-specialisations
   -Wno-partial-type-signatures
   -threaded
+  -with-rtsopts=-N
+  -O2
 
 language: GHC2021
 

@@ -2,12 +2,16 @@
 
 module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 
-import Control.DeepSeq (NFData)
+import Control.DeepSeq (force)
+import Control.Parallel.Strategies
+import Data.Bits
 import Data.Hashable
+import Debug.Trace
+import GHC.Conc (par)
 import GHC.Generics (Generic)
 import Numeric.Natural
 
-data Annotation = Annotation
+newtype Annotation = Annotation
   { hash :: Int
   }
   deriving stock (Show, Generic)
@@ -58,14 +62,18 @@ data RawNoun ann
 
 instance Eq (RawNoun ann) where
   (Atom lhs _) == (Atom rhs _) = lhs == rhs
-  (Cell lhslhs lhsrhs _) == (Cell rhslhs rhsrhs _) = lhslhs == rhslhs && lhsrhs == rhsrhs
+  (Cell lhslhs lhsrhs _) == (Cell rhslhs rhsrhs _) =
+    let rhsRes = lhsrhs == rhsrhs
+     in (force rhsRes `par` lhslhs == rhslhs) && rhsRes
   _ == _ = False
 
 hashEq :: Noun -> Noun -> Bool
 hashEq (Atom lhsNat lhsAnn) (Atom rhsNat rhsAnn) =
-  lhsAnn.hash == rhsAnn.hash && lhsNat == rhsNat
+  let normalEq = lhsNat == rhsNat
+   in (force normalEq `par` lhsAnn.hash == rhsAnn.hash) && normalEq
 hashEq (Cell lhslhs lhsrhs lhsAnn) (Cell rhslhs rhsrhs rhsAnn) =
-  lhsAnn.hash == rhsAnn.hash && hashEq lhslhs rhslhs && hashEq lhsrhs rhsrhs
+  let normalEq = hashEq lhslhs rhslhs && hashEq lhsrhs rhsrhs
+   in (force normalEq `par` lhsAnn.hash == rhsAnn.hash) && normalEq
 hashEq _ _ = False
 
 type Noun = RawNoun Annotation
@@ -88,21 +96,19 @@ fas lhs rhs =
       ~(Cell lhs' _ _) -> lhs'
     3 -> case rhs of
       ~(Cell _ rhs' _) -> rhs'
-    n
-      | n > 0 ->
-          let (d, m) = divMod n 2
-           in if m == 0
-                then fas 2 (fas d rhs)
-                else fas 3 (fas d rhs)
-    _ -> undefined
+    n ->
+      let rest = fas (unsafeShiftR n 1) rhs
+       in if testBit n 0
+            then fas 3 rest
+            else fas 2 rest
 
 hax :: Natural -> Noun -> Noun -> Noun
 hax n b c =
-  let (a, m) = divMod n 2
+  let a = unsafeShiftR n 1
    in case n of
         1 -> b
-        _ | m == 0 -> hax a (cell b (fas (a + a + 1) c)) c
-        _ -> hax a (cell (fas (a + a) c) b) c
+        _ | testBit n 0 -> hax a (cell (fas (n - 1) c) b) c
+        _ -> hax a (cell b (fas (n + 1) c)) c
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
