@@ -73,6 +73,7 @@ default-extensions:
 - NoFieldSelectors
 - AllowAmbiguousTypes 
 - ImpredicativeTypes
+- MagicHash
 
 tests:
   spec:
