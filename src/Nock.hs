@@ -2,11 +2,9 @@
 
 module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 
-import Control.DeepSeq (force)
-import Control.Parallel.Strategies
+import Control.DeepSeq (NFData, force)
 import Data.Bits
 import Data.Hashable
-import Debug.Trace
 import GHC.Conc (par)
 import GHC.Generics (Generic)
 import Numeric.Natural
@@ -103,12 +101,12 @@ fas lhs rhs =
             else fas 2 rest
 
 hax :: Natural -> Noun -> Noun -> Noun
-hax n b c =
-  let a = unsafeShiftR n 1
-   in case n of
-        1 -> b
-        _ | testBit n 0 -> hax a (cell (fas (n - 1) c) b) c
-        _ -> hax a (cell b (fas (n + 1) c)) c
+hax 1 newValue _ = newValue
+hax place newValue ~(Cell lhs rhs _) =
+  let a = unsafeShiftR place 1
+   in if testBit place 0
+        then cell (hax a newValue lhs) rhs
+        else cell lhs (hax a newValue rhs)
 
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
