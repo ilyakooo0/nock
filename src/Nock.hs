@@ -1,10 +1,14 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
+module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..), pretty) where
 
 import Control.DeepSeq (NFData, force)
 import Data.Bits
 import Data.Hashable
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Builder qualified as TLB
+import Data.Text.Lazy.Builder.Int qualified as TLB
+import Debug.Trace
 import GHC.Base
 import GHC.Conc (par)
 import GHC.Generics (Generic)
@@ -56,8 +60,11 @@ annotation (Cell _ _ ann) = ann
 data RawNoun ann
   = Atom !Natural ann
   | Cell (RawNoun ann) (RawNoun ann) ann
-  deriving stock (Generic, Show)
+  deriving stock (Generic)
   deriving anyclass (NFData)
+
+instance Show (RawNoun ann) where
+  show = TL.unpack . pretty
 
 instance Eq (RawNoun ann) where
   (Atom lhs _) == (Atom rhs _) = lhs == rhs
@@ -142,7 +149,7 @@ tar' b c subject = case b of
     4## -> case c of
       ~(Cell l k _) -> lus $ tar' l k subject
     _ -> case c of
-      ~(Cell x ~(Cell h j _) _) -> case n of
+      ~(Cell x ~formula@(Cell h j _) _) -> case n of
         2## -> case (tar' h j subject, x) of
           ~(~(Cell u v _), ~(Cell l k _)) -> tar' u v (tar' l k subject)
         5## -> case x of
@@ -157,6 +164,14 @@ tar' b c subject = case b of
         10## -> case x of
           ~(Cell ~(Atom b' _) ~(Cell u v _) _) -> hax b' (tar' u v subject) (tar' h j subject)
         11## -> case x of
-          Cell _ ~(Cell u v _) _ -> tar' sig three (cell (tar' u v subject) (tar' h j subject))
+          Cell _ ~(Cell u v _) _ -> traceShow (formula, subject) $ tar' h j subject
           Atom _ _ -> tar' h j subject
         _ -> undefined
+
+pretty :: RawNoun ann -> TL.Text
+pretty noun = TLB.toLazyText $ pretty' noun False
+
+pretty' :: RawNoun ann -> Bool -> TLB.Builder
+pretty' (Atom a _) _ = TLB.decimal a
+pretty' (Cell lhs rhs _) True = pretty' lhs False <> " " <> pretty' rhs True
+pretty' (Cell lhs rhs _) False = "[" <> pretty' lhs False <> " " <> pretty' rhs True <> "]"

@@ -30,5 +30,5 @@ goldenTest = do
           $ proc "urbit" ["eval"]
             & setStdin (byteStringInput hoon)
             & setStderr nullStream
-      let result = TL.encodeUtf8 . Nock.Printer.pretty . tar $ cell (atom 0) nock
+      let result = TL.encodeUtf8 . pretty . tar $ cell (atom 0) nock
       pure result
