@@ -1,3 +1,5 @@
+.*
+~
 !=
 => 
 |%
@@ -7,7 +9,7 @@
 =/  b  0
 |-  ^-  @
 ?.  =(a +(b))  $(b +(b))  b
-++  bar  1
+++  bar  2
 ++  add
   :: ~/  %add
   ::    unsigned addition
@@ -20,4 +22,4 @@
   ?:  =(0 a)  b
   $(a (dec a), b +(b))
 --
-%+  add  1  2
+dec

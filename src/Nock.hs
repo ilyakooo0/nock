@@ -106,7 +106,7 @@ tar' b c subject = case b of
         2## -> case x of
           ~(Cell l k _) -> case tar' l k subject of
             ~(formula@(Cell battery ~(Cell sample _ _) _)) ->
-              if battery == Nock.Jets.dec
+              if traceShowId battery == Nock.Jets.add
                 then error "Found it!"
                 else case (tar' h j subject) of
                   ~(Cell u v _) -> tar' u v formula
