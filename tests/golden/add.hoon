@@ -1,19 +1,15 @@
 !=
 => 
 |%
+++  foo  1
 ++  dec
-  ~/  %dec
-  ::    unsigned decrement by one.
-  |=  a=@
-  ~_  leaf+"decrement-underflow"
-  ?<  =(0 a)
-  =+  b=0
-  ::  decremented integer
-  |-  ^-  @
-  ?:  =(a +(b))  b
-  $(b +(b))
+|=  a=@
+=/  b  0
+|-  ^-  @
+?.  =(a +(b))  $(b +(b))  b
+++  bar  1
 ++  add
-  ~/  %add
+  :: ~/  %add
   ::    unsigned addition
   ::
   ::  a: augend
@@ -24,5 +20,4 @@
   ?:  =(0 a)  b
   $(a (dec a), b +(b))
 --
-%+  add
-1.000  1.000
+%+  add  1  2

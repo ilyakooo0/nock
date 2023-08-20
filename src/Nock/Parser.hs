@@ -5,7 +5,7 @@ module Nock.Parser (noun) where
 import Control.Applicative
 import Data.Text.Lazy as TL
 import Data.Void (Void)
-import Nock
+import Nock.Types
 import Text.Megaparsec
 import Text.Megaparsec.Char
 import Text.Megaparsec.Char.Lexer (decimal)

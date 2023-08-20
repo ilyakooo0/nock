@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
-module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..), pretty) where
+module Nock (tar, hax, fas, cell, atom, Annotation (..), Noun, RawNoun (..)) where
 
 import Control.DeepSeq (NFData, force)
 import Data.Bits
@@ -13,24 +13,8 @@ import GHC.Base
 import GHC.Conc (par)
 import GHC.Generics (Generic)
 import GHC.Num
-
-newtype Annotation = Annotation
-  { hash :: Int
-  }
-  deriving stock (Show, Generic)
-  deriving anyclass (NFData)
-
-atom :: Natural -> Noun
-atom nat = Atom nat Annotation {hash = hash nat}
-
-cell :: Noun -> Noun -> Noun
-cell lhs rhs =
-  Cell
-    lhs
-    rhs
-    Annotation
-      { hash = hash ((annotation lhs).hash, (annotation rhs).hash)
-      }
+import Nock.Jets
+import Nock.Types
 
 sig :: Noun
 sig = atom 0
@@ -52,37 +36,6 @@ twoThree = cell two three
 
 sigOne :: Noun
 sigOne = cell sig one
-
-annotation :: RawNoun ann -> ann
-annotation (Atom _ ann) = ann
-annotation (Cell _ _ ann) = ann
-
-data RawNoun ann
-  = Atom !Natural ann
-  | Cell (RawNoun ann) (RawNoun ann) ann
-  deriving stock (Generic)
-  deriving anyclass (NFData)
-
-instance Show (RawNoun ann) where
-  show = TL.unpack . pretty
-
-instance Eq (RawNoun ann) where
-  (Atom lhs _) == (Atom rhs _) = lhs == rhs
-  (Cell lhslhs lhsrhs _) == (Cell rhslhs rhsrhs _) =
-    let rhsRes = lhsrhs == rhsrhs
-     in (force rhsRes `par` lhslhs == rhslhs) && rhsRes
-  _ == _ = False
-
-hashEq :: Noun -> Noun -> Bool
-hashEq (Atom lhsNat lhsAnn) (Atom rhsNat rhsAnn) =
-  let normalEq = lhsNat == rhsNat
-   in (force normalEq `par` lhsAnn.hash == rhsAnn.hash) && normalEq
-hashEq (Cell lhslhs lhsrhs lhsAnn) (Cell rhslhs rhsrhs rhsAnn) =
-  let normalEq = hashEq lhslhs rhslhs && hashEq lhsrhs rhsrhs
-   in (force normalEq `par` lhsAnn.hash == rhsAnn.hash) && normalEq
-hashEq _ _ = False
-
-type Noun = RawNoun Annotation
 
 wut :: Noun -> Noun
 wut Cell {} = sig
@@ -149,9 +102,14 @@ tar' b c subject = case b of
     4## -> case c of
       ~(Cell l k _) -> lus $ tar' l k subject
     _ -> case c of
-      ~(Cell x ~formula@(Cell h j _) _) -> case n of
-        2## -> case (tar' h j subject, x) of
-          ~(~(Cell u v _), ~(Cell l k _)) -> tar' u v (tar' l k subject)
+      ~(Cell x ~(Cell h j _) _) -> case n of
+        2## -> case x of
+          ~(Cell l k _) -> case tar' l k subject of
+            ~(formula@(Cell battery ~(Cell sample _ _) _)) ->
+              if battery == Nock.Jets.dec
+                then error "Found it!"
+                else case (tar' h j subject) of
+                  ~(Cell u v _) -> tar' u v formula
         5## -> case x of
           ~(Cell l k _) -> tis (tar' h j subject) (tar' l k subject)
         7## -> case x of
@@ -164,14 +122,6 @@ tar' b c subject = case b of
         10## -> case x of
           ~(Cell ~(Atom b' _) ~(Cell u v _) _) -> hax b' (tar' u v subject) (tar' h j subject)
         11## -> case x of
-          Cell _ ~(Cell u v _) _ -> traceShow (formula, subject) $ tar' h j subject
+          Cell _ ~(Cell u v _) _ -> tar' h j subject
           Atom _ _ -> tar' h j subject
         _ -> undefined
-
-pretty :: RawNoun ann -> TL.Text
-pretty noun = TLB.toLazyText $ pretty' noun False
-
-pretty' :: RawNoun ann -> Bool -> TLB.Builder
-pretty' (Atom a _) _ = TLB.decimal a
-pretty' (Cell lhs rhs _) True = pretty' lhs False <> " " <> pretty' rhs True
-pretty' (Cell lhs rhs _) False = "[" <> pretty' lhs False <> " " <> pretty' rhs True <> "]"

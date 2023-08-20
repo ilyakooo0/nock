@@ -7,6 +7,7 @@ import Data.Text.Lazy.Encoding as TL
 import Nock
 import Nock.Parser qualified
 import Nock.Printer
+import Nock.Types
 import System.FilePath.Posix
 import System.Process.Typed
 import Test.Tasty
