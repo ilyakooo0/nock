@@ -78,14 +78,12 @@ haxWord place newValue ~(Cell lhs rhs _) =
         1## -> cell (haxWord a newValue lhs) rhs
         _ -> cell lhs (haxWord a newValue rhs)
 
-hax :: Natural -> Noun -> Noun -> Noun
-hax (NS w) newValue rhs = haxWord w newValue rhs
-hax place newValue ~(Cell lhs rhs _) =
-  let a = unsafeShiftR place 1
-   in if testBit place 0
-        then cell (hax a newValue lhs) rhs
-        else cell lhs (hax a newValue rhs)
-
+hax n b c =
+  let a = unsafeShiftR n 1
+   in case n of
+        1 -> b
+        _ | testBit n 0 -> hax a (cell (fas (n - 1) c) b) c
+        _ -> hax a (cell b (fas (n + 1) c)) c
 tar :: Noun -> Noun
 tar ~(Cell subject ~(Cell a b _) _) = tar' a b subject
 
