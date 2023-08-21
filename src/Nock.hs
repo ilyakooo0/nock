@@ -70,6 +70,7 @@ fas n rhs =
         else fas 2 rest
 
 haxWord :: Word# -> Noun -> Noun -> Noun
+haxWord _ _ tree | traceShow tree False = undefined
 haxWord 1## newValue _ = newValue
 haxWord place newValue ~(Cell lhs rhs _) =
   let a = uncheckedShiftRL# place 1#
@@ -106,10 +107,10 @@ tar' b c subject = case b of
         2## -> case x of
           ~(Cell l k _) -> case tar' l k subject of
             ~(formula@(Cell battery ~(Cell sample _ _) _)) ->
-              if traceShowId battery == Nock.Jets.add
-                then error "Found it!"
-                else case (tar' h j subject) of
-                  ~(Cell u v _) -> tar' u v formula
+              -- if traceShowId battery == Nock.Jets.add
+              --   then error "Found it!"
+              case (tar' h j subject) of
+                ~(Cell u v _) -> tar' u v formula
         5## -> case x of
           ~(Cell l k _) -> tis (tar' h j subject) (tar' l k subject)
         7## -> case x of

@@ -1,6 +1,18 @@
-!=
-=> 
+=>
 |%
+++  mul
+  ~/  %mul
+  ::    unsigned multiplication
+  ::
+  ::  a: multiplicand
+  ::  b: multiplier
+  |:  [a=`@`1 b=`@`1]
+  ::  product
+  ^-  @
+  =+  c=0
+  |-
+  ?:  =(0 a)  c
+  $(a (dec a), c (add b c))
 ++  foo  1
 ++  baz  |=  x=@  x
 ++  dec
@@ -20,5 +32,5 @@
   ^-  @
   ?:  =(0 a)  b
   $(a (dec a), b +(b))
---
-(add 3 5) 
+-- 
+(mul 3 5)
